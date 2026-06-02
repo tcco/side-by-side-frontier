@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Side-by-Side Code Comparison Arena</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Highlight.js Theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <!-- Vanilla CSS Link -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-container">
+        <i class="fa-solid fa-code-compare logo-icon"></i>
+        <h1>CodeArena <span>MVP</span></h1>
+      </div>
+      <div class="header-actions">
+        <button id="settingsBtn" class="btn icon-btn" title="Configure API Keys">
+          <i class="fa-solid fa-gear"></i> Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-content">
+      <!-- Input Panel -->
+      <section class="input-panel">
+        <div class="input-header">
+          <h2>Local Workspace Configuration</h2>
+          <span class="sub-label">Select a local challenge or create a new one. Outputs will be saved as static files.</span>
+        </div>
+
+        <!-- Challenge management Row -->
+        <div class="challenge-mgmt-row">
+          <div class="form-group challenge-select-group">
+            <label for="challengeSelect"><i class="fa-solid fa-folder-open"></i> Select Local Challenge</label>
+            <select id="challengeSelect">
+              <option value="new" selected>+ Create New Challenge...</option>
+              <!-- Loaded dynamically -->
+            </select>
+          </div>
+          <div class="form-group" id="newChallengeGroup">
+            <label for="newChallengeName">New Challenge Name (Folder Name)</label>
+            <input type="text" id="newChallengeName" placeholder="E.g., sidebar-component">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="taskPrompt">Task Description / Coding Request (prompt.md)</label>
+          <textarea id="taskPrompt" placeholder="Describe the code you want to build or update. E.g., 'Write a responsive flexbox sidebar component with a dark mode toggle'..." rows="5"></textarea>
+        </div>
+
+        <!-- Collapsible Existing Code Context -->
+        <div class="collapsible-container">
+          <button id="toggleExistingCode" class="collapsible-trigger">
+            <span><i class="fa-solid fa-code"></i> Existing Code Context (Optional)</span>
+            <span class="code-ext-indicator" id="codeExtIndicator">code.js</span>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+          </button>
+          <div id="existingCodeWrapper" class="collapsible-content">
+            <div class="code-filename-settings">
+              <label for="existingCodeFile">Code Filename:</label>
+              <input type="text" id="existingCodeFile" value="code.js" placeholder="e.g. code.py, code.css, code.js">
+            </div>
+            <textarea id="existingCode" placeholder="Paste the existing file content or reference code here..." rows="8"></textarea>
+          </div>
+        </div>
+
+        <!-- Configuration row -->
+        <div class="config-row">
+          <div class="model-select-group">
+            <label for="modelA">Model A</label>
+            <select id="modelA">
+              <optgroup label="Anthropic">
+                <option value="anthropic/claude-3-7-sonnet" selected>Claude 3.7 Sonnet</option>
+                <option value="anthropic/claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                <option value="anthropic/claude-opus-4-7">Claude 4.7 Opus</option>
+                <option value="anthropic/claude-opus-4-8">Claude 4.8 Opus</option>
+              </optgroup>
+              <optgroup label="Google Gemini">
+                <option value="gemini/gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
+                <option value="gemini/gemini-3.5-flash">Gemini 3.5 Flash</option>
+                <option value="gemini/gemini-1.5-pro-latest">Gemini 1.5 Pro</option>
+              </optgroup>
+              <optgroup label="OpenAI">
+                <option value="openai/gpt-5.5">GPT-5.5</option>
+                <option value="openai/gpt-4o">GPT-4o</option>
+                <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="model-select-group">
+            <label for="modelB">Model B</label>
+            <select id="modelB">
+              <optgroup label="Google Gemini">
+                <option value="gemini/gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
+                <option value="gemini/gemini-3.5-flash" selected>Gemini 3.5 Flash</option>
+                <option value="gemini/gemini-1.5-pro-latest">Gemini 1.5 Pro</option>
+              </optgroup>
+              <optgroup label="Anthropic">
+                <option value="anthropic/claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+                <option value="anthropic/claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                <option value="anthropic/claude-opus-4-7">Claude 4.7 Opus</option>
+                <option value="anthropic/claude-opus-4-8">Claude 4.8 Opus</option>
+              </optgroup>
+              <optgroup label="OpenAI">
+                <option value="openai/gpt-5.5">GPT-5.5</option>
+                <option value="openai/gpt-4o">GPT-4o</option>
+                <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- AI Judge Configuration row -->
+        <div class="config-row judge-config-row">
+          <div class="model-select-group">
+            <label for="judgeModel"><i class="fa-solid fa-gavel"></i> AI Judge Model</label>
+            <select id="judgeModel">
+              <optgroup label="Google Gemini">
+                <option value="gemini/gemini-3.1-pro-preview" selected>Gemini 3.1 Pro</option>
+                <option value="gemini/gemini-3.5-flash">Gemini 3.5 Flash</option>
+                <option value="gemini/gemini-1.5-pro-latest">Gemini 1.5 Pro</option>
+              </optgroup>
+              <optgroup label="Anthropic">
+                <option value="anthropic/claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+                <option value="anthropic/claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                <option value="anthropic/claude-opus-4-7">Claude 4.7 Opus</option>
+              </optgroup>
+              <optgroup label="OpenAI">
+                <option value="openai/gpt-5.5">GPT-5.5</option>
+                <option value="openai/gpt-4o">GPT-4o</option>
+              </optgroup>
+            </select>
+          </div>
+          
+          <div class="model-select-group auto-judge-group">
+            <label>&nbsp;</label>
+            <div class="toggle-container">
+              <label class="switch">
+                <input type="checkbox" id="autoRunJudge" checked>
+                <span class="slider round"></span>
+              </label>
+              <span class="toggle-label">Auto-Run AI Judge</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group control-actions-row">
+          <button id="generateBtn" class="btn primary-btn btn-glow">
+            <i class="fa-solid fa-bolt"></i> Generate & Compare
+          </button>
+          
+          <button id="runJudgeBtn" class="btn secondary-btn" disabled>
+            <i class="fa-solid fa-gavel"></i> Run AI Judge
+          </button>
+          
+          <div class="toggle-container">
+            <label class="switch">
+              <input type="checkbox" id="forceRegenerate">
+              <span class="slider round"></span>
+            </label>
+            <span class="toggle-label" title="Bypass cached outputs and force a new API generation call">Force Regenerate</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comparison Output Grid -->
+      <section id="comparisonWorkspace" class="comparison-workspace hidden">
+        <div class="workspace-header">
+          <div class="workspace-title-group">
+            <h2>Model Generation Outputs</h2>
+            <div id="storageNotice" class="storage-notice">
+              <i class="fa-solid fa-floppy-disk"></i> Loaded from disk (outputs/...)
+            </div>
+          </div>
+        </div>
+
+        <div class="comparison-grid">
+          <!-- Column A -->
+          <div class="output-column" id="colA">
+            <div class="column-header">
+              <span class="column-badge badge-a">Model A</span>
+              <h3 id="labelModelA">Claude 3.5 Sonnet</h3>
+              <button class="btn icon-btn copy-btn" data-target="contentA" title="Copy Output">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+            <div class="column-body">
+              <div id="loadingA" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p>Generating Code solution...</p>
+              </div>
+              <div id="errorA" class="error-state hidden"></div>
+              <div id="contentA" class="markdown-body"></div>
+            </div>
+          </div>
+
+          <!-- Column B -->
+          <div class="output-column" id="colB">
+            <div class="column-header">
+              <span class="column-badge badge-b">Model B</span>
+              <h3 id="labelModelB">Gemini 1.5 Pro</h3>
+              <button class="btn icon-btn copy-btn" data-target="contentB" title="Copy Output">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+            <div class="column-body">
+              <div id="loadingB" class="loading-state hidden">
+                <div class="spinner"></div>
+                <p>Generating Code solution...</p>
+              </div>
+              <div id="errorB" class="error-state hidden"></div>
+              <div id="contentB" class="markdown-body"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Judge Section -->
+      <section id="judgeSection" class="judge-section">
+        <div class="judge-header">
+          <div class="judge-title-wrapper">
+            <i class="fa-solid fa-gavel judge-icon"></i>
+            <h2>AI Judge Evaluation</h2>
+          </div>
+        </div>
+
+        <div class="judge-body">
+          <div id="judgePlaceholder" class="judge-placeholder-card">
+            <i class="fa-solid fa-brain placeholder-icon"></i>
+            <h3>Technical Scorecard Evaluation</h3>
+            <p>Generate comparison outputs above and click <strong>Run AI Judge</strong> to receive an in-depth scorecard showing pros/cons and a final verdict.</p>
+          </div>
+
+          <div id="judgeLoading" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Analyzing both outputs, generating technical scorecard...</p>
+          </div>
+          <div id="judgeError" class="error-state hidden"></div>
+          
+          <!-- Judge Results Card -->
+          <div id="judgeResults" class="judge-results-card hidden">
+            <div class="verdict-banner" id="judgeVerdictBanner">
+              <span class="verdict-label">Verdict</span>
+              <h3 id="judgeWinner">Model A Wins</h3>
+              <p id="judgeShortExplanation">Model A provided a cleaner implementation with proper async error handling.</p>
+            </div>
+            <div id="judgeContent" class="markdown-body judge-details">
+              <!-- Scorecard Markdown renders here -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Settings Drawer / Modal (Glassmorphic design) -->
+  <div id="settingsOverlay" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-key"></i> Settings</h2>
+        <button id="closeSettingsBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-hint">Your API keys are stored safely <strong>in your local browser storage</strong> and are sent securely only to your local proxy server.</p>
+        
+        <div class="form-group">
+          <label for="keyOpenAI">OpenAI API Key</label>
+          <div class="key-input-wrapper">
+            <input type="password" id="keyOpenAI" placeholder="sk-proj-...">
+            <button class="btn toggle-password-btn" data-target="keyOpenAI"><i class="fa-regular fa-eye-slash"></i></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="keyAnthropic">Anthropic API Key</label>
+          <div class="key-input-wrapper">
+            <input type="password" id="keyAnthropic" placeholder="sk-ant-...">
+            <button class="btn toggle-password-btn" data-target="keyAnthropic"><i class="fa-regular fa-eye-slash"></i></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="keyGemini">Google Gemini API Key</label>
+          <div class="key-input-wrapper">
+            <input type="password" id="keyGemini" placeholder="AIzaSy...">
+            <button class="btn toggle-password-btn" data-target="keyGemini"><i class="fa-regular fa-eye-slash"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="btn primary-btn">Save API Keys</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- Vanilla JS Link -->
+  <script src="app.js"></script>
+</body>
+</html>
