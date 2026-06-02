@@ -156,11 +156,6 @@ async function callGemini(model, promptContent, apiKey) {
 
 // Helper to resolve legacy/hypothetical model names to active, valid API IDs
 function resolveModelName(provider, model) {
-  if (provider === 'anthropic') {
-    if (model === 'claude-3-7-sonnet') return 'claude-3-7-sonnet-20250219';
-    if (model === 'claude-3-5-sonnet') return 'claude-3-5-sonnet-20241022';
-    if (model.startsWith('claude-opus-4')) return 'claude-3-opus-20240229';
-  }
   return model;
 }
 
@@ -405,52 +400,41 @@ app.post('/api/compare', async (req, res) => {
   const modelBSlug = slugifyModel(modelB);
   const currentOutputDir = path.join(OUTPUTS_DIR, resolvedChallengeId);
 
-  // Check Caching first if forceRegenerate is disabled
-  if (forceRegenerate === false || forceRegenerate === 'false') {
-    const pathA = path.join(currentOutputDir, `${modelASlug}.md`);
-    const pathB = path.join(currentOutputDir, `${modelBSlug}.md`);
-    
-    if (fs.existsSync(pathA) && fs.existsSync(pathB)) {
-      try {
-        const textA = await fsPromises.readFile(pathA, 'utf-8');
-        const textB = await fsPromises.readFile(pathB, 'utf-8');
-        
-        // Also ensure meta.json is up to date with these choices as the most recent comparison
-        const meta = {
-          modelA: {
-            id: modelA,
-            slug: modelASlug,
-            name: modelAName || realModelA
-          },
-          modelB: {
-            id: modelB,
-            slug: modelBSlug,
-            name: modelBName || realModelB
-          },
-          fileExt
-        };
-        await fsPromises.writeFile(path.join(currentOutputDir, 'meta.json'), JSON.stringify(meta, null, 2), 'utf-8');
-
-        return res.json({
-          challengeId: resolvedChallengeId,
-          modelA: { text: textA, error: null },
-          modelB: { text: textB, error: null },
-          cached: true
-        });
-      } catch (err) {
-        // Fallback to calling APIs if file read fails
-      }
-    }
-  }
-
   const results = {
     modelA: { text: '', error: null },
     modelB: { text: '', error: null }
   };
 
+  const pathA = path.join(currentOutputDir, `${modelASlug}.md`);
+  const pathB = path.join(currentOutputDir, `${modelBSlug}.md`);
+  const isForce = forceRegenerate === true || forceRegenerate === 'true';
+
+  let cachedA = false;
+  let cachedB = false;
+
+  if (!isForce) {
+    if (fs.existsSync(pathA)) {
+      try {
+        results.modelA.text = await fsPromises.readFile(pathA, 'utf-8');
+        cachedA = true;
+      } catch (err) {
+        // Fallback to API if file read fails
+      }
+    }
+    if (fs.existsSync(pathB)) {
+      try {
+        results.modelB.text = await fsPromises.readFile(pathB, 'utf-8');
+        cachedB = true;
+      } catch (err) {
+        // Fallback to API if file read fails
+      }
+    }
+  }
+
   // Run calls concurrently
   await Promise.all([
     (async () => {
+      if (cachedA) return;
       try {
         results.modelA.text = await executeModelCall(providerA, realModelA, promptContent, keys);
       } catch (err) {
@@ -458,6 +442,7 @@ app.post('/api/compare', async (req, res) => {
       }
     })(),
     (async () => {
+      if (cachedB) return;
       try {
         results.modelB.text = await executeModelCall(providerB, realModelB, promptContent, keys);
       } catch (err) {
@@ -473,13 +458,13 @@ app.post('/api/compare', async (req, res) => {
     }
 
     // Save outputs using model name slugs
-    if (!results.modelA.error) {
+    if (!results.modelA.error && !cachedA) {
       await fsPromises.writeFile(path.join(currentOutputDir, `${modelASlug}.md`), results.modelA.text, 'utf-8');
       const codeA = extractCodeBlock(results.modelA.text);
       await fsPromises.writeFile(path.join(currentOutputDir, `${modelASlug}${fileExt}`), codeA, 'utf-8');
     }
 
-    if (!results.modelB.error) {
+    if (!results.modelB.error && !cachedB) {
       await fsPromises.writeFile(path.join(currentOutputDir, `${modelBSlug}.md`), results.modelB.text, 'utf-8');
       const codeB = extractCodeBlock(results.modelB.text);
       await fsPromises.writeFile(path.join(currentOutputDir, `${modelBSlug}${fileExt}`), codeB, 'utf-8');
@@ -506,7 +491,7 @@ app.post('/api/compare', async (req, res) => {
     challengeId: resolvedChallengeId,
     modelA: results.modelA,
     modelB: results.modelB,
-    cached: false
+    cached: cachedA && cachedB
   });
 });
 

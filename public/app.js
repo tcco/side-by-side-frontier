@@ -272,6 +272,39 @@ document.addEventListener('DOMContentLoaded', () => {
           // Only enable Judge if both models have outputs
           runJudgeBtn.disabled = !(data.modelAExists && data.modelBExists);
         }
+      } else {
+        // No saved outputs at all for this challenge (e.g. 404 from server)
+        comparisonWorkspace.classList.remove('hidden');
+        storageNotice.classList.add('hidden');
+        
+        activeSession.challengeId = selectedChallenge;
+        activeSession.outputA = '';
+        activeSession.outputB = '';
+        activeSession.prompt = taskPrompt.value;
+        activeSession.existingCode = existingCode.value;
+        activeSession.modelAName = nameA;
+        activeSession.modelBName = nameB;
+
+        labelModelA.textContent = nameA;
+        contentA.innerHTML = '';
+        contentA.classList.add('hidden');
+        errorA.textContent = `No saved output for ${nameA} on this challenge. Click Generate to run.`;
+        errorA.classList.remove('hidden');
+        loadingA.classList.add('hidden');
+
+        labelModelB.textContent = nameB;
+        contentB.innerHTML = '';
+        contentB.classList.add('hidden');
+        errorB.textContent = `No saved output for ${nameB} on this challenge. Click Generate to run.`;
+        errorB.classList.remove('hidden');
+        loadingB.classList.add('hidden');
+
+        // Reset judge view to placeholder
+        judgePlaceholder.classList.remove('hidden');
+        judgeResults.classList.add('hidden');
+        judgeLoading.classList.add('hidden');
+        judgeError.classList.add('hidden');
+        runJudgeBtn.disabled = true;
       }
     } catch (err) {
       console.error('Error checking for existing outputs:', err);
@@ -491,8 +524,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.modelA.error) {
         errorA.textContent = data.modelA.error;
         errorA.classList.remove('hidden');
+        contentA.classList.add('hidden');
       } else {
+        labelModelA.textContent = `${nameA} (Saved)`;
         contentA.innerHTML = marked.parse(data.modelA.text);
+        contentA.classList.remove('hidden');
+        errorA.classList.add('hidden');
         activeSession.outputA = data.modelA.text;
       }
 
@@ -500,8 +537,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.modelB.error) {
         errorB.textContent = data.modelB.error;
         errorB.classList.remove('hidden');
+        contentB.classList.add('hidden');
       } else {
+        labelModelB.textContent = `${nameB} (Saved)`;
         contentB.innerHTML = marked.parse(data.modelB.text);
+        contentB.classList.remove('hidden');
+        errorB.classList.add('hidden');
         activeSession.outputB = data.modelB.text;
       }
 
