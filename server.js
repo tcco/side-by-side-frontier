@@ -168,6 +168,7 @@ async function executeModelCall(provider, model, promptContent, keys) {
     case 'anthropic':
       return await callAnthropic(resolvedModel, promptContent, keys.anthropic);
     case 'gemini':
+    case 'google':
       return await callGemini(resolvedModel, promptContent, keys.gemini);
     default:
       throw new Error(`Unsupported provider: ${provider}`);
@@ -237,7 +238,7 @@ app.get('/api/challenges', async (req, res) => {
 app.get('/api/outputs/:id', async (req, res) => {
   const challengeId = req.params.id;
   const challengeOutputDir = path.join(OUTPUTS_DIR, challengeId);
-  const { modelA, modelB } = req.query;
+  const { modelA, modelB, judgeModel } = req.query;
   
   if (!fs.existsSync(challengeOutputDir)) {
     return res.status(404).json({ error: 'Outputs not found for this challenge.' });
@@ -294,8 +295,30 @@ app.get('/api/outputs/:id', async (req, res) => {
         }
       }
 
-      const pathJudge = path.join(challengeOutputDir, 'judge.md');
-      if (fs.existsSync(pathJudge)) {
+      let pathJudge = null;
+      if (modelA && modelB && judgeModel) {
+        const modelASlug = slugifyModel(modelA);
+        const modelBSlug = slugifyModel(modelB);
+        const judgeModelSlug = slugifyModel(judgeModel);
+        const specificPath = path.join(challengeOutputDir, `judge_${modelASlug}_vs_${modelBSlug}_by_${judgeModelSlug}.md`);
+        if (fs.existsSync(specificPath)) {
+          pathJudge = specificPath;
+        } else {
+          // Fallback to legacy judge.md only if the models match the ones in meta.json
+          if (meta && 
+              ((meta.modelA.id === modelA && meta.modelB.id === modelB) ||
+               (meta.modelA.id === modelB && meta.modelB.id === modelA))) {
+            const legacyPath = path.join(challengeOutputDir, 'judge.md');
+            if (fs.existsSync(legacyPath)) {
+              pathJudge = legacyPath;
+            }
+          }
+        }
+      } else {
+        pathJudge = path.join(challengeOutputDir, 'judge.md');
+      }
+
+      if (pathJudge && fs.existsSync(pathJudge)) {
         response.judge = await fsPromises.readFile(pathJudge, 'utf-8');
       }
 
@@ -497,7 +520,7 @@ app.post('/api/compare', async (req, res) => {
 
 // AI Judge evaluation endpoint (runs judge and logs verdict file)
 app.post('/api/judge', async (req, res) => {
-  const { challengeId, prompt, existingCode, modelAName, modelBName, outputA, outputB, judgeModel } = req.body;
+  const { challengeId, prompt, existingCode, modelAName, modelBName, modelA, modelB, outputA, outputB, judgeModel, forceRegenerate } = req.body;
   const keys = {
     openai: req.headers['x-openai-key'],
     anthropic: req.headers['x-anthropic-key'],
@@ -506,6 +529,28 @@ app.post('/api/judge', async (req, res) => {
 
   if (!prompt || !outputA || !outputB || !challengeId) {
     return res.status(400).json({ error: 'Missing required parameters for judging.' });
+  }
+
+  const currentOutputDir = path.join(OUTPUTS_DIR, challengeId);
+  
+  let filename = 'judge.md';
+  if (modelA && modelB && judgeModel) {
+    const modelASlug = slugifyModel(modelA);
+    const modelBSlug = slugifyModel(modelB);
+    const judgeModelSlug = slugifyModel(judgeModel);
+    filename = `judge_${modelASlug}_vs_${modelBSlug}_by_${judgeModelSlug}.md`;
+  }
+  const pathJudge = path.join(currentOutputDir, filename);
+
+  const isForce = forceRegenerate === true || forceRegenerate === 'true';
+
+  if (!isForce && fs.existsSync(pathJudge)) {
+    try {
+      const evaluation = await fsPromises.readFile(pathJudge, 'utf-8');
+      return res.json({ evaluation, cached: true });
+    } catch (err) {
+      // Fallback to API if file read fails
+    }
   }
 
   const judgePrompt = `You are an expert, unbiased AI Code Judge. Your task is to compare two code outputs (Model A: ${modelAName} and Model B: ${modelBName}) created in response to a coding task (and optional existing code context), and decide which one is better and why.
@@ -545,13 +590,13 @@ Do not include any text after the JSON code block.`;
     const evaluation = await executeModelCall(provider, realModel, judgePrompt, keys);
     
     // Save judge output locally
-    const currentOutputDir = path.join(OUTPUTS_DIR, challengeId);
     if (!fs.existsSync(currentOutputDir)) {
       await fsPromises.mkdir(currentOutputDir, { recursive: true });
     }
-    await fsPromises.writeFile(path.join(currentOutputDir, 'judge.md'), evaluation, 'utf-8');
 
-    res.json({ evaluation });
+    await fsPromises.writeFile(pathJudge, evaluation, 'utf-8');
+
+    res.json({ evaluation, cached: false });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

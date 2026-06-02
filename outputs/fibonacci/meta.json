@@ -5,9 +5,9 @@
     "name": "Claude 4.5 Haiku"
   },
   "modelB": {
-    "id": "gemini/gemini-3.5-flash",
-    "slug": "gemini_gemini-3.5-flash",
-    "name": "Gemini 3.5 Flash"
+    "id": "openai/gpt-4o",
+    "slug": "openai_gpt-4o",
+    "name": "GPT-4o"
   },
   "fileExt": ".js"
 }

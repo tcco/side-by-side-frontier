@@ -552,6 +552,14 @@ textarea {
   padding-left: 1.5rem;
 }
 
+.markdown-body ul {
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
 .markdown-body li {
   margin-bottom: 0.25rem;
 }
@@ -634,15 +642,26 @@ textarea {
 
 .verdict-banner {
   padding: 1.5rem;
+  padding-left: 2rem;
   border-radius: 12px;
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.4rem;
   position: relative;
   overflow: hidden;
   background: rgba(245, 158, 11, 0.05);
   border-color: rgba(245, 158, 11, 0.2);
+}
+
+.verdict-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--warning-color);
 }
 
 .winner-a-active {
@@ -650,14 +669,26 @@ textarea {
   border-color: rgba(59, 130, 246, 0.3) !important;
 }
 
+.winner-a-active::before {
+  background: var(--badge-a-color) !important;
+}
+
 .winner-b-active {
   background: rgba(236, 72, 153, 0.08) !important;
   border-color: rgba(236, 72, 153, 0.3) !important;
 }
 
+.winner-b-active::before {
+  background: var(--badge-b-color) !important;
+}
+
 .winner-tie-active {
   background: rgba(16, 185, 129, 0.08) !important;
   border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.winner-tie-active::before {
+  background: var(--success-color) !important;
 }
 
 .verdict-label {
@@ -678,6 +709,20 @@ textarea {
 #judgeShortExplanation {
   font-size: 0.95rem;
   color: var(--text-secondary);
+}
+
+#judgeShortExplanation strong {
+  font-weight: 600;
+  color: #fff;
+}
+
+#judgeShortExplanation code {
+  font-family: var(--font-code);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #fff;
 }
 
 .judge-details {

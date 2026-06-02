@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Configure marked to disable indented code blocks.
+  // This prevents LLM bullet lists/sublists starting with 4 spaces from being parsed as code blocks.
+  if (typeof marked !== 'undefined') {
+    marked.use({
+      tokenizer: {
+        code(src) {
+          return false;
+        }
+      }
+    });
+  }
+
   // DOM Elements
   const settingsBtn = document.getElementById('settingsBtn');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
@@ -64,7 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
     prompt: '',
     existingCode: '',
     modelAName: '',
-    modelBName: ''
+    modelBName: '',
+    modelA: '',
+    modelB: ''
   };
 
   // Initialize
@@ -128,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sync model dropdown changes to check for existing outputs
   modelA.addEventListener('change', checkForExistingOutputs);
   modelB.addEventListener('change', checkForExistingOutputs);
+  judgeModel.addEventListener('change', checkForExistingOutputs);
 
   async function handleChallengeChange() {
     const selected = challengeSelect.value;
@@ -202,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // We try to load specific outputs for these models
     try {
-      const response = await fetch(`/api/outputs/${selectedChallenge}?modelA=${encodeURIComponent(mValA)}&modelB=${encodeURIComponent(mValB)}`);
+      const response = await fetch(`/api/outputs/${selectedChallenge}?modelA=${encodeURIComponent(mValA)}&modelB=${encodeURIComponent(mValB)}&judgeModel=${encodeURIComponent(judgeModel.value)}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -219,6 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
         activeSession.existingCode = existingCode.value;
         activeSession.modelAName = nameA;
         activeSession.modelBName = nameB;
+        activeSession.modelA = mValA;
+        activeSession.modelB = mValB;
 
         // Process Column A
         if (data.modelAExists) {
@@ -284,6 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
         activeSession.existingCode = existingCode.value;
         activeSession.modelAName = nameA;
         activeSession.modelBName = nameB;
+        activeSession.modelA = mValA;
+        activeSession.modelB = mValB;
 
         labelModelA.textContent = nameA;
         contentA.innerHTML = '';
@@ -326,7 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let explanation = 'Both models offered high-quality solutions.';
     let cleanedText = judgeText;
 
-    const jsonRegex = /```json\n([\s\S]*?)\n```/;
+    // Use a case-insensitive regex that accommodates any carriage returns, newlines, or extra spaces around/inside the code block fences
+    const jsonRegex = /```json\s*([\s\S]*?)\s*```/i;
     const match = judgeText.match(jsonRegex);
     
     if (match) {
@@ -341,7 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     judgeWinner.textContent = winner === 'Tie' ? 'Draw / Tie' : `${winner} Wins`;
-    judgeShortExplanation.textContent = explanation;
+    // Use marked.parseInline to render any markdown formatting (like bold, italics, or inline code) in the explanation
+    judgeShortExplanation.innerHTML = marked.parseInline(explanation);
     judgeContent.innerHTML = marked.parse(cleanedText);
 
     // Style banner
@@ -427,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const provider = modelVal.split('/')[0];
     if (provider === 'openai' && !keys.openai) return 'OpenAI';
     if (provider === 'anthropic' && !keys.anthropic) return 'Anthropic';
-    if (provider === 'gemini' && !keys.gemini) return 'Gemini';
+    if ((provider === 'gemini' || provider === 'google') && !keys.gemini) return 'Gemini';
     return null;
   }
 
@@ -565,6 +586,8 @@ document.addEventListener('DOMContentLoaded', () => {
         activeSession.existingCode = existingCode.value.trim();
         activeSession.modelAName = nameA;
         activeSession.modelBName = nameB;
+        activeSession.modelA = modelA.value;
+        activeSession.modelB = modelB.value;
 
         // Auto Scroll to workspace
         comparisonWorkspace.scrollIntoView({ behavior: 'smooth' });
@@ -626,9 +649,12 @@ document.addEventListener('DOMContentLoaded', () => {
           existingCode: activeSession.existingCode,
           modelAName: activeSession.modelAName,
           modelBName: activeSession.modelBName,
+          modelA: activeSession.modelA,
+          modelB: activeSession.modelB,
           outputA: activeSession.outputA,
           outputB: activeSession.outputB,
-          judgeModel: judgeModel.value
+          judgeModel: judgeModel.value,
+          forceRegenerate: forceRegenerate.checked
         })
       });
 

@@ -10,29 +10,23 @@ def fibonacci_recursive(n):
     Calculate the nth Fibonacci number using recursion.
     
     Args:
-        n: Position in Fibonacci sequence (0-indexed)
+        n: The position in the Fibonacci sequence (0-indexed)
     
     Returns:
         The nth Fibonacci number
     
-    Time Complexity: O(2^n) - exponential
-    Space Complexity: O(n) - call stack depth
+    Time Complexity: O(2^n) - Very slow for large n
+    Space Complexity: O(n) - Call stack depth
     """
     if n <= 1:
         return n
     return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
 
-
-# Test
+# Example usage
 print(fibonacci_recursive(10))  # Output: 55
 ```
 
-**Pros:** Simple and intuitive  
-**Cons:** Very slow for large numbers due to repeated calculations
-
----
-
-## Solution 2: Memoization (Optimized Recursive)
+## Solution 2: Memoization (Optimized Recursion)
 
 ```python
 def fibonacci_memoization(n, memo=None):
@@ -40,7 +34,7 @@ def fibonacci_memoization(n, memo=None):
     Calculate the nth Fibonacci number using recursion with memoization.
     
     Args:
-        n: Position in Fibonacci sequence (0-indexed)
+        n: The position in the Fibonacci sequence (0-indexed)
         memo: Dictionary to store previously calculated values
     
     Returns:
@@ -61,15 +55,9 @@ def fibonacci_memoization(n, memo=None):
     memo[n] = fibonacci_memoization(n - 1, memo) + fibonacci_memoization(n - 2, memo)
     return memo[n]
 
-
-# Test
+# Example usage
 print(fibonacci_memoization(10))  # Output: 55
 ```
-
-**Pros:** Much faster than pure recursion  
-**Cons:** Uses extra memory for cache
-
----
 
 ## Solution 3: Iterative Approach (Best for Most Cases)
 
@@ -79,7 +67,7 @@ def fibonacci_iterative(n):
     Calculate the nth Fibonacci number using iteration.
     
     Args:
-        n: Position in Fibonacci sequence (0-indexed)
+        n: The position in the Fibonacci sequence (0-indexed)
     
     Returns:
         The nth Fibonacci number
@@ -96,15 +84,9 @@ def fibonacci_iterative(n):
     
     return curr
 
-
-# Test
+# Example usage
 print(fibonacci_iterative(10))  # Output: 55
 ```
-
-**Pros:** Fast and memory-efficient  
-**Cons:** None significant
-
----
 
 ## Solution 4: Generator (For Sequences)
 
@@ -117,7 +99,10 @@ def fibonacci_generator(limit):
         limit: Maximum number of Fibonacci numbers to generate
     
     Yields:
-        The next Fibonacci number in sequence
+        The next Fibonacci number in the sequence
+    
+    Time Complexity: O(n)
+    Space Complexity: O(1)
     """
     a, b = 0, 1
     count = 0
@@ -127,16 +112,9 @@ def fibonacci_generator(limit):
         a, b = b, a + b
         count += 1
 
-
-# Test
-print(list(fibonacci_generator(10)))  
-# Output: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+# Example usage
+print(list(fibonacci_generator(10)))  # Output: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
 ```
-
-**Pros:** Memory-efficient for large sequences  
-**Cons:** Only useful when you need multiple values
-
----
 
 ## Solution 5: Matrix Exponentiation (Fastest for Very Large Numbers)
 
@@ -164,7 +142,7 @@ def fibonacci_matrix(n):
     Calculate the nth Fibonacci number using matrix exponentiation.
     
     Args:
-        n: Position in Fibonacci sequence (0-indexed)
+        n: The position in the Fibonacci sequence (0-indexed)
     
     Returns:
         The nth Fibonacci number
@@ -179,52 +157,41 @@ def fibonacci_matrix(n):
     result = matrix_power(base_matrix, n)
     return result[0][1]
 
-
-# Test
+# Example usage
 print(fibonacci_matrix(10))  # Output: 55
 ```
 
-**Pros:** Fastest for very large numbers  
-**Cons:** More complex code
-
----
-
-## Comparison Table
-
-| Method | Time | Space | Best For |
-|--------|------|-------|----------|
-| Recursive | O(2^n) | O(n) | Learning only |
-| Memoization | O(n) | O(n) | Medium numbers |
-| Iterative | O(n) | O(1) | **Most cases** |
-| Generator | O(n) | O(1) | Sequences |
-| Matrix | O(log n) | O(log n) | Very large numbers |
-
----
-
-## Complete Example with All Solutions
+## Complete Test Program
 
 ```python
-# Test all methods
-n = 15
+def test_all_solutions():
+    """Test all Fibonacci implementations."""
+    test_cases = [0, 1, 5, 10, 20, 30]
+    
+    print("Testing all Fibonacci solutions:\n")
+    
+    for n in test_cases:
+        print(f"Fibonacci({n}):")
+        print(f"  Recursive:      {fibonacci_recursive(n)}")
+        print(f"  Memoization:    {fibonacci_memoization(n)}")
+        print(f"  Iterative:      {fibonacci_iterative(n)}")
+        print(f"  Matrix:         {fibonacci_matrix(n)}")
+        print()
 
-print(f"Fibonacci({n}):")
-print(f"Recursive:     {fibonacci_recursive(n)}")
-print(f"Memoization:   {fibonacci_memoization(n)}")
-print(f"Iterative:     {fibonacci_iterative(n)}")
-print(f"Matrix:        {fibonacci_matrix(n)}")
-print(f"Generator:     {list(fibonacci_generator(n))}")
-
-# Output:
-# Fibonacci(15):
-# Recursive:     610
-# Memoization:   610
-# Iterative:     610
-# Matrix:        610
-# Generator:     [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377]
+if __name__ == "__main__":
+    test_all_solutions()
 ```
 
----
+## Performance Comparison
+
+| Approach | Time | Space | Best For |
+|----------|------|-------|----------|
+| Recursive | O(2^n) | O(n) | Educational purposes only |
+| Memoization | O(n) | O(n) | Medium values of n |
+| Iterative | O(n) | O(1) | **Most practical use cases** |
+| Generator | O(n) | O(1) | Generating sequences |
+| Matrix | O(log n) | O(log n) | Very large n values |
 
 ## Recommendation
 
-**Use the iterative approach** for most practical purposes—it's fast, simple, and memory-efficient!
+**Use `fibonacci_iterative()`** for most practical applications—it's simple, efficient, and easy to understand.

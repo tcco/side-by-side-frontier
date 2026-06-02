@@ -63,7 +63,9 @@ describe('CodeArena Frontend Tests', () => {
     // Mock window global dependencies
     window.alert = vi.fn();
     window.marked = {
-      parse: (text) => `<div>Parsed: ${text}</div>`
+      parse: (text) => `<div>Parsed: ${text}</div>`,
+      parseInline: (text) => text,
+      use: vi.fn()
     };
     window.hljs = {
       highlightElement: vi.fn()
@@ -124,7 +126,7 @@ describe('CodeArena Frontend Tests', () => {
             ok: true,
             json: () => Promise.resolve({
               modelAId: 'anthropic/claude-opus-4-8',
-              modelBId: 'gemini/gemini-3.5-flash'
+              modelBId: 'google/gemini-3.5-flash'
             })
           };
         }
@@ -154,7 +156,7 @@ describe('CodeArena Frontend Tests', () => {
 
       // Verify dropdown values updated
       expect(modelA.value).toBe('anthropic/claude-opus-4-8');
-      expect(modelB.value).toBe('gemini/gemini-3.5-flash');
+      expect(modelB.value).toBe('google/gemini-3.5-flash');
 
       // Verify outputs loaded and visible
       const comparisonWorkspace = document.getElementById('comparisonWorkspace');
@@ -196,7 +198,7 @@ describe('CodeArena Frontend Tests', () => {
             ok: true,
             json: () => Promise.resolve({
               modelAId: 'anthropic/claude-opus-4-8',
-              modelBId: 'gemini/gemini-3.5-flash'
+              modelBId: 'google/gemini-3.5-flash'
             })
           };
         }
@@ -271,13 +273,13 @@ describe('CodeArena Frontend Tests', () => {
             ok: true,
             json: () => Promise.resolve({
               modelAId: 'anthropic/claude-opus-4-8',
-              modelBId: 'gemini/gemini-3.5-flash'
+              modelBId: 'google/gemini-3.5-flash'
             })
           };
         }
         if (url.startsWith('/api/outputs/fibonacci?')) {
           // Model A = Claude, Model B = Gemini
-          if (url.includes('anthropic%2Fclaude-opus-4-8') && url.includes('gemini%2Fgemini-3.5-flash')) {
+          if (url.includes('anthropic%2Fclaude-opus-4-8') && url.includes('google%2Fgemini-3.5-flash')) {
             return {
               ok: true,
               json: () => Promise.resolve({
@@ -289,7 +291,7 @@ describe('CodeArena Frontend Tests', () => {
             };
           }
           // If we change Model A to GPT-4o, it does not exist
-          if (url.includes('openai%2Fgpt-4o') && url.includes('gemini%2Fgemini-3.5-flash')) {
+          if (url.includes('openai%2Fgpt-4o') && url.includes('google%2Fgemini-3.5-flash')) {
             return {
               ok: true,
               json: () => Promise.resolve({
@@ -435,6 +437,176 @@ describe('CodeArena Frontend Tests', () => {
       expect(document.getElementById('contentB').classList.contains('hidden')).toBe(false);
       expect(document.getElementById('errorB').classList.contains('hidden')).toBe(true);
       expect(document.getElementById('contentB').innerHTML).toContain('Succeeded Gemini response');
+    });
+  });
+
+  describe('Scenario 6: Dynamic AI Judge Selection and Rendering', () => {
+    it('should query with judgeModel parameter and reload judge scorecard when judge model changes', async () => {
+      await flushPromises();
+
+      // Configure fetch mocks
+      mockFetch.mockImplementation(async (url, options) => {
+        if (url === '/api/challenges') {
+          return getChallengesListResponse();
+        }
+        if (url === '/api/outputs/fibonacci') {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              modelAId: 'anthropic/claude-opus-4-8',
+              modelBId: 'google/gemini-3.5-flash'
+            })
+          };
+        }
+        if (url.startsWith('/api/outputs/fibonacci?')) {
+          // If judgeModel is Gemini 3.1 Pro (default selected in HTML is google/gemini-3.1-pro)
+          if (url.includes('judgeModel=google%2Fgemini-3.1-pro')) {
+            return {
+              ok: true,
+              json: () => Promise.resolve({
+                modelAExists: true,
+                modelBExists: true,
+                modelA: 'Saved Claude Code',
+                modelB: 'Saved Gemini Code',
+                judge: '### Gemini evaluation\n```json\n{"winner": "Model A", "explanation": "Gemini selected Claude."}\n```'
+              })
+            };
+          }
+          // If judgeModel is changed to openai/gpt-5.5
+          if (url.includes('judgeModel=openai%2Fgpt-5.5')) {
+            return {
+              ok: true,
+              json: () => Promise.resolve({
+                modelAExists: true,
+                modelBExists: true,
+                modelA: 'Saved Claude Code',
+                modelB: 'Saved Gemini Code',
+                judge: '### OpenAI evaluation\n```json\n{"winner": "Model B", "explanation": "OpenAI selected Gemini."}\n```'
+              })
+            };
+          }
+        }
+        return { ok: false, status: 404 };
+      });
+
+      // Select fibonacci challenge
+      const challengeSelect = document.getElementById('challengeSelect');
+      challengeSelect.value = 'fibonacci';
+      challengeSelect.dispatchEvent(new window.Event('change'));
+      await flushPromises();
+
+      // Verify dropdown values updated
+      const modelA = document.getElementById('modelA');
+      const modelB = document.getElementById('modelB');
+      expect(modelA.value).toBe('anthropic/claude-opus-4-8');
+      expect(modelB.value).toBe('google/gemini-3.5-flash');
+
+      // Verify the first fetch URL included the default judgeModel
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('judgeModel=google%2Fgemini-3.1-pro')
+      );
+
+      // Verify Gemini's scorecard is rendered
+      const judgeWinner = document.getElementById('judgeWinner');
+      expect(judgeWinner.textContent).toBe('Model A Wins');
+      expect(document.getElementById('judgeShortExplanation').textContent).toBe('Gemini selected Claude.');
+
+      // Now change the Judge Model to OpenAI GPT-5.5
+      const judgeModel = document.getElementById('judgeModel');
+      judgeModel.value = 'openai/gpt-5.5';
+      judgeModel.dispatchEvent(new window.Event('change'));
+      await flushPromises();
+
+      // Verify the new fetch URL included the new judgeModel
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('judgeModel=openai%2Fgpt-5.5')
+      );
+
+      // Verify OpenAI's scorecard is rendered (Model B wins)
+      expect(judgeWinner.textContent).toBe('Model B Wins');
+      expect(document.getElementById('judgeShortExplanation').textContent).toBe('OpenAI selected Gemini.');
+    });
+  });
+
+  describe('Scenario 7: Judge Output Caching Toggle', () => {
+    it('should pass forceRegenerate based on the checkbox selection in judge execution requests', async () => {
+      await flushPromises();
+
+      // Configure fetch mocks
+      mockFetch.mockImplementation(async (url, options) => {
+        if (url === '/api/challenges') {
+          return getChallengesListResponse();
+        }
+        if (url === '/api/outputs/fibonacci') {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              modelAId: 'anthropic/claude-opus-4-8',
+              modelBId: 'google/gemini-3.5-flash'
+            })
+          };
+        }
+        if (url.startsWith('/api/outputs/fibonacci?')) {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              modelAExists: true,
+              modelBExists: true,
+              modelA: 'Saved Claude Code',
+              modelB: 'Saved Gemini Code'
+            })
+          };
+        }
+        if (url === '/api/judge' && options.method === 'POST') {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              evaluation: '### Cached or Fresh Scorecard\n```json\n{"winner": "Tie", "explanation": "Checked forceRegenerate."}\n```'
+            })
+          };
+        }
+        return { ok: false, status: 404 };
+      });
+
+      // Ensure keys are set
+      window.localStorage.setItem('code_arena_openai_key', 'test-key');
+      window.localStorage.setItem('code_arena_anthropic_key', 'test-key');
+      window.localStorage.setItem('code_arena_gemini_key', 'test-key');
+
+      // Select fibonacci challenge
+      const challengeSelect = document.getElementById('challengeSelect');
+      challengeSelect.value = 'fibonacci';
+      challengeSelect.dispatchEvent(new window.Event('change'));
+      await flushPromises();
+
+      // 1. Run judge with forceRegenerate = false (default)
+      const forceRegenerate = document.getElementById('forceRegenerate');
+      forceRegenerate.checked = false;
+
+      const runJudgeBtn = document.getElementById('runJudgeBtn');
+      runJudgeBtn.dispatchEvent(new window.Event('click'));
+      await flushPromises();
+
+      // Verify the POST body had forceRegenerate: false
+      const firstJudgeCall = mockFetch.mock.calls.find(call => call[0] === '/api/judge');
+      expect(firstJudgeCall).toBeDefined();
+      const firstBody = JSON.parse(firstJudgeCall[1].body);
+      expect(firstBody.forceRegenerate).toBe(false);
+
+      // Reset mock fetch calls tracker
+      mockFetch.mockClear();
+
+      // 2. Run judge with forceRegenerate = true
+      forceRegenerate.checked = true;
+      runJudgeBtn.disabled = false; // Re-enable for test purposes as it gets disabled on successful render
+      runJudgeBtn.dispatchEvent(new window.Event('click'));
+      await flushPromises();
+
+      // Verify the POST body had forceRegenerate: true
+      const secondJudgeCall = mockFetch.mock.calls.find(call => call[0] === '/api/judge');
+      expect(secondJudgeCall).toBeDefined();
+      const secondBody = JSON.parse(secondJudgeCall[1].body);
+      expect(secondBody.forceRegenerate).toBe(true);
     });
   });
 });
