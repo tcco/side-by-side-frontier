@@ -358,6 +358,31 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {
         console.error('Failed to parse judge JSON verdict:', e);
       }
+    } else {
+      // Fallback text parsing if JSON block is missing or invalid
+      const lowerText = judgeText.toLowerCase();
+      const lastParagraph = lowerText.slice(-500);
+      
+      if (/\bmodel a\s+wins\b/.test(lastParagraph) || /\bmodel a\s+is\s+the\s+(?:clear\s+)?winner\b/.test(lastParagraph) || /\bmodel a\s+is\s+(?:significantly\s+)?(?:better|superior)\b/.test(lastParagraph)) {
+        winner = 'Model A';
+      } else if (/\bmodel b\s+wins\b/.test(lastParagraph) || /\bmodel b\s+is\s+the\s+(?:clear\s+)?winner\b/.test(lastParagraph) || /\bmodel b\s+is\s+(?:significantly\s+)?(?:better|superior)\b/.test(lastParagraph)) {
+        winner = 'Model B';
+      } else if (/\bmodel a\s+wins\b/.test(lowerText) || /\bmodel a\s+is\s+the\s+(?:clear\s+)?winner\b/.test(lowerText) || /\bmodel a\s+is\s+(?:significantly\s+)?(?:better|superior)\b/.test(lowerText)) {
+        winner = 'Model A';
+      } else if (/\bmodel b\s+wins\b/.test(lowerText) || /\bmodel b\s+is\s+the\s+(?:clear\s+)?winner\b/.test(lowerText) || /\bmodel b\s+is\s+(?:significantly\s+)?(?:better|superior)\b/.test(lowerText)) {
+        winner = 'Model B';
+      } else if (/\btie\b/.test(lastParagraph) || /\bdraw\b/.test(lastParagraph) || /\bequally\b/.test(lastParagraph)) {
+        winner = 'Tie';
+      } else if (/\btie\b/.test(lowerText) || /\bdraw\b/.test(lowerText)) {
+        winner = 'Tie';
+      }
+
+      // Try to extract the last non-empty line as explanation
+      const lines = judgeText.trim().split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length > 0) {
+        const lastLine = lines[lines.length - 1];
+        explanation = lastLine.replace(/^[\s*\-+\d\.]+\s*/, '');
+      }
     }
 
     judgeWinner.textContent = winner === 'Tie' ? 'Draw / Tie' : `${winner} Wins`;

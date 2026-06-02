@@ -609,4 +609,52 @@ describe('CodeArena Frontend Tests', () => {
       expect(secondBody.forceRegenerate).toBe(true);
     });
   });
+
+  describe('Scenario 8: Fallback Parsing for AI Judge Verdict', () => {
+    it('should correctly parse the winner and explanation from plain text if JSON block is missing', async () => {
+      await flushPromises();
+
+      // Configure fetch mocks to return a scorecard with NO JSON block, ending with "Model A wins" statement
+      mockFetch.mockImplementation(async (url) => {
+        if (url === '/api/challenges') {
+          return getChallengesListResponse();
+        }
+        if (url === '/api/outputs/fibonacci') {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              modelAId: 'anthropic/claude-opus-4-8',
+              modelBId: 'google/gemini-3.5-flash'
+            })
+          };
+        }
+        if (url.startsWith('/api/outputs/fibonacci?')) {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              modelAExists: true,
+              modelBExists: true,
+              modelA: 'Claude Code',
+              modelB: 'Gemini Code',
+              judge: 'This is a test evaluation.\nModel A is significantly better than Model B.\nTherefore, Model A wins because of time complexity.'
+            })
+          };
+        }
+        return { ok: false, status: 404 };
+      });
+
+      // Select fibonacci challenge
+      const challengeSelect = document.getElementById('challengeSelect');
+      challengeSelect.value = 'fibonacci';
+      challengeSelect.dispatchEvent(new window.Event('change'));
+      await flushPromises();
+
+      // Verify the parsed winner is "Model A" and explanation is extracted from the last line
+      const judgeWinner = document.getElementById('judgeWinner');
+      expect(judgeWinner.textContent).toBe('Model A Wins');
+
+      const judgeShortExplanation = document.getElementById('judgeShortExplanation');
+      expect(judgeShortExplanation.textContent).toBe('Therefore, Model A wins because of time complexity.');
+    });
+  });
 });
