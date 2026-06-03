@@ -459,8 +459,8 @@ describe('CodeArena Frontend Tests', () => {
           };
         }
         if (url.startsWith('/api/outputs/fibonacci?')) {
-          // If judgeModel is Gemini 3.1 Pro (default selected in HTML is google/gemini-3.1-pro)
-          if (url.includes('judgeModel=google%2Fgemini-3.1-pro')) {
+          // If judgeModel is Gemini 3.5 Flash (default selected in HTML is google/gemini-3.5-flash)
+          if (url.includes('judgeModel=google%2Fgemini-3.5-flash')) {
             return {
               ok: true,
               json: () => Promise.resolve({
@@ -503,7 +503,7 @@ describe('CodeArena Frontend Tests', () => {
 
       // Verify the first fetch URL included the default judgeModel
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('judgeModel=google%2Fgemini-3.1-pro')
+        expect.stringContaining('judgeModel=google%2Fgemini-3.5-flash')
       );
 
       // Verify Gemini's scorecard is rendered

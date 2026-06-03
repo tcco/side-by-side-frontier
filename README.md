@@ -4,6 +4,20 @@ An interactive, high-fidelity playground to generate, compare, and judge code so
 
 This tool helps developers, prompts engineers, and AI researchers test the code generation capabilities of various models under the exact same prompts and constraints, and utilizes an AI Judge to determine the winning solution with an in-depth scorecard.
 
+## Visuals
+
+### 1. Local Workspace Configuration
+Select challenges, configure Model A and Model B, choose the AI Judge model, and toggle settings.
+![Workspace Configuration](screenshots/1_configuration.png)
+
+### 2. Side-by-Side Model Outputs
+Compare generation outputs with full markdown formatting and code syntax highlighting.
+![Model Generation Outputs](screenshots/2_outputs.png)
+
+### 3. AI Judge Evaluation
+Analyze the structured evaluation showing the scoring criteria and detailed verdict.
+![AI Judge Evaluation](screenshots/3_evaluation.png)
+
 ---
 
 ## Key Features
@@ -99,6 +113,18 @@ Sends the prompt and context to both chosen LLMs in parallel.
 
 ### 4. `POST /api/judge`
 Calls a third model to act as an evaluator between the two outputs. Saves the resulting evaluation as `judge.md` in the challenge output folder.
+
+---
+
+## Comparison Methodology & Summarized Thoughts
+
+To form a collective, aggregate opinion of how models produce code across different challenges, we use a tournament-style comparison:
+
+1. **Round 1 (Initial Pro Matchup)**: Compare top Pro models from two providers (e.g., **Claude vs. Gemini**).
+2. **Round 2 (Championship Matchup)**: Compare the winner of Round 1 against the top Pro model of the third provider (e.g., **Round 1 Winner vs. GPT-4o**).
+3. **Synthesis & Aggregation**: Analyze the performance across challenges to identify patterns, strengths, and weaknesses for each model class.
+
+Summarized thoughts and overall conclusions are tracked in the [summarized-thoughts](file:///Users/timothyco/Code/side-by-side-frontier/summarized-thoughts) directory.
 
 ---
 

@@ -45,7 +45,8 @@ function slugify(text) {
     .replace(/\-\-+/g, '-')         // Replace multiple - with single -
     .replace(/^-+/, '')             // Trim - from start of text
     .replace(/-+$/, '')             // Trim - from end of text
-    .substring(0, 40);              // Cap length
+    .substring(0, 40)               // Cap length
+    .replace(/-+$/, '');            // Trim - from end of text again in case substring split on a dash
 }
 
 // Helper to slugify model names
@@ -61,28 +62,60 @@ function extractCodeBlock(markdown) {
 }
 
 // Handler for calling OpenAI
-async function callOpenAI(model, promptContent, apiKey) {
+async function callOpenAI(model, promptContent, apiKey, maxTokens) {
   if (!apiKey) throw new Error('OpenAI API Key is missing.');
   
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
+  // Omit temperature for reasoning / GPT-5+ models (e.g. gpt-5.5, o1, o3)
+  const isNewModel = /^(?:gpt-5|o[13])/i.test(model);
+
+  const makeRequest = async (includeTemperature) => {
+    const body = {
       model: model,
       messages: [
         { role: 'system', content: 'You are a world-class expert software engineer. Solve the programming task accurately, efficiently, and with premium code quality.' },
         { role: 'user', content: promptContent }
-      ],
-      temperature: 0.2
-    })
-  });
+      ]
+    };
+    if (includeTemperature) {
+      body.temperature = 0.2;
+    }
+    
+    if (maxTokens && maxTokens !== 'default') {
+      const tokensNum = parseInt(maxTokens, 10);
+      if (!isNaN(tokensNum)) {
+        if (isNewModel) {
+          body.max_completion_tokens = tokensNum;
+        } else {
+          body.max_tokens = tokensNum;
+        }
+      }
+    }
+    
+    return await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(body)
+    });
+  };
+
+  let response = await makeRequest(!isNewModel);
 
   if (!response.ok) {
     const err = await response.json();
-    throw new Error(`OpenAI Error: ${err.error?.message || response.statusText}`);
+    const errMsg = err.error?.message || response.statusText || '';
+    // If we originally sent temperature and it failed because of temperature limitations, retry without it
+    if (!isNewModel && response.status === 400 && errMsg.toLowerCase().includes('temperature')) {
+      response = await makeRequest(false);
+      if (!response.ok) {
+        const retryErr = await response.json();
+        throw new Error(`OpenAI Error: ${retryErr.error?.message || response.statusText}`);
+      }
+    } else {
+      throw new Error(`OpenAI Error: ${errMsg}`);
+    }
   }
 
   const data = await response.json();
@@ -90,29 +123,67 @@ async function callOpenAI(model, promptContent, apiKey) {
 }
 
 // Handler for calling Anthropic
-async function callAnthropic(model, promptContent, apiKey) {
+async function callAnthropic(model, promptContent, apiKey, maxTokens) {
   if (!apiKey) throw new Error('Anthropic API Key is missing.');
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
+  // Deprecated for Claude 4.7+ (e.g. claude-opus-4-7, claude-opus-4-8)
+  const isNewModel = /claude-(?:opus|sonnet|haiku)-(\d+)[-.](\d+)/i.test(model) && (() => {
+    const match = model.match(/claude-(?:opus|sonnet|haiku)-(\d+)[-.](\d+)/i);
+    const major = parseInt(match[1], 10);
+    const minor = parseInt(match[2], 10);
+    return (major + (minor / 10)) >= 4.7;
+  })();
+
+  let resolvedMaxTokens = 4000;
+  if (maxTokens && maxTokens !== 'default') {
+    const tokensNum = parseInt(maxTokens, 10);
+    if (!isNaN(tokensNum)) {
+      resolvedMaxTokens = tokensNum;
+    }
+  }
+  // Anthropic has a strict maximum output token limit of 8192 for the latest models.
+  if (resolvedMaxTokens > 8192) {
+    resolvedMaxTokens = 8192;
+  }
+
+  const makeRequest = async (includeTemperature) => {
+    const body = {
       model: model,
-      max_tokens: 4000,
+      max_tokens: resolvedMaxTokens,
       messages: [
         { role: 'user', content: promptContent }
-      ],
-      temperature: 0.2
-    })
-  });
+      ]
+    };
+    if (includeTemperature) {
+      body.temperature = 0.2;
+    }
+
+    return await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify(body)
+    });
+  };
+
+  let response = await makeRequest(!isNewModel);
 
   if (!response.ok) {
     const err = await response.json();
-    throw new Error(`Anthropic Error: ${err.error?.message || response.statusText}`);
+    const errMsg = err.error?.message || response.statusText || '';
+    // If we originally sent temperature and it failed because of temperature deprecation, retry without it
+    if (!isNewModel && response.status === 400 && errMsg.toLowerCase().includes('temperature')) {
+      response = await makeRequest(false);
+      if (!response.ok) {
+        const retryErr = await response.json();
+        throw new Error(`Anthropic Error: ${retryErr.error?.message || response.statusText}`);
+      }
+    } else {
+      throw new Error(`Anthropic Error: ${errMsg}`);
+    }
   }
 
   const data = await response.json();
@@ -120,8 +191,19 @@ async function callAnthropic(model, promptContent, apiKey) {
 }
 
 // Handler for calling Gemini
-async function callGemini(model, promptContent, apiKey) {
+async function callGemini(model, promptContent, apiKey, maxTokens) {
   if (!apiKey) throw new Error('Gemini API Key is missing.');
+
+  const generationConfig = {
+    temperature: 0.2
+  };
+  
+  if (maxTokens && maxTokens !== 'default') {
+    const tokensNum = parseInt(maxTokens, 10);
+    if (!isNaN(tokensNum)) {
+      generationConfig.maxOutputTokens = tokensNum;
+    }
+  }
 
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
     method: 'POST',
@@ -136,9 +218,7 @@ async function callGemini(model, promptContent, apiKey) {
           ]
         }
       ],
-      generationConfig: {
-        temperature: 0.2
-      }
+      generationConfig: generationConfig
     })
   });
 
@@ -156,20 +236,24 @@ async function callGemini(model, promptContent, apiKey) {
 
 // Helper to resolve legacy/hypothetical model names to active, valid API IDs
 function resolveModelName(provider, model) {
+  if (provider === 'google' || provider === 'gemini') {
+    if (model === 'gemini-3.1-pro') return 'gemini-3.1-pro-preview';
+    if (model === 'gemini-2.1-pro') return 'gemini-2.5-pro';
+  }
   return model;
 }
 
 // Route to generate code from a single model
-async function executeModelCall(provider, model, promptContent, keys) {
+async function executeModelCall(provider, model, promptContent, keys, maxTokens) {
   const resolvedModel = resolveModelName(provider, model);
   switch (provider) {
     case 'openai':
-      return await callOpenAI(resolvedModel, promptContent, keys.openai);
+      return await callOpenAI(resolvedModel, promptContent, keys.openai, maxTokens);
     case 'anthropic':
-      return await callAnthropic(resolvedModel, promptContent, keys.anthropic);
+      return await callAnthropic(resolvedModel, promptContent, keys.anthropic, maxTokens);
     case 'gemini':
     case 'google':
-      return await callGemini(resolvedModel, promptContent, keys.gemini);
+      return await callGemini(resolvedModel, promptContent, keys.gemini, maxTokens);
     default:
       throw new Error(`Unsupported provider: ${provider}`);
   }
@@ -381,7 +465,7 @@ app.get('/api/outputs/:id', async (req, res) => {
 
 // Main generation endpoint (calls both models in parallel and logs files with slugs)
 app.post('/api/compare', async (req, res) => {
-  const { prompt, existingCode, existingCodeFile, challengeId, modelA, modelB, modelAName, modelBName, forceRegenerate } = req.body;
+  const { prompt, existingCode, existingCodeFile, challengeId, modelA, modelB, modelAName, modelBName, forceRegenerate, maxTokens } = req.body;
   const keys = {
     openai: req.headers['x-openai-key'],
     anthropic: req.headers['x-anthropic-key'],
@@ -459,7 +543,7 @@ app.post('/api/compare', async (req, res) => {
     (async () => {
       if (cachedA) return;
       try {
-        results.modelA.text = await executeModelCall(providerA, realModelA, promptContent, keys);
+        results.modelA.text = await executeModelCall(providerA, realModelA, promptContent, keys, maxTokens);
       } catch (err) {
         results.modelA.error = err.message;
       }
@@ -467,7 +551,7 @@ app.post('/api/compare', async (req, res) => {
     (async () => {
       if (cachedB) return;
       try {
-        results.modelB.text = await executeModelCall(providerB, realModelB, promptContent, keys);
+        results.modelB.text = await executeModelCall(providerB, realModelB, promptContent, keys, maxTokens);
       } catch (err) {
         results.modelB.error = err.message;
       }
@@ -520,7 +604,7 @@ app.post('/api/compare', async (req, res) => {
 
 // AI Judge evaluation endpoint (runs judge and logs verdict file)
 app.post('/api/judge', async (req, res) => {
-  const { challengeId, prompt, existingCode, modelAName, modelBName, modelA, modelB, outputA, outputB, judgeModel, forceRegenerate } = req.body;
+  const { challengeId, prompt, existingCode, modelAName, modelBName, modelA, modelB, outputA, outputB, judgeModel, forceRegenerate, maxTokens } = req.body;
   const keys = {
     openai: req.headers['x-openai-key'],
     anthropic: req.headers['x-anthropic-key'],
@@ -587,7 +671,7 @@ Do not include any text after the JSON code block.`;
   const [provider, realModel] = judgeModel.split('/');
 
   try {
-    const evaluation = await executeModelCall(provider, realModel, judgePrompt, keys);
+    const evaluation = await executeModelCall(provider, realModel, judgePrompt, keys, maxTokens);
     
     // Save judge output locally
     if (!fs.existsSync(currentOutputDir)) {

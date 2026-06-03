@@ -126,14 +126,32 @@
           </div>
         </div>
 
+        <!-- Generation Options Row -->
+        <div class="config-row">
+          <div class="model-select-group">
+            <label for="maxTokens"><i class="fa-solid fa-arrow-up-9-1"></i> Max Response Tokens</label>
+            <select id="maxTokens">
+              <option value="default" selected>Default (None/Optional)</option>
+              <option value="4000">4,000 tokens</option>
+              <option value="8000">8,000 tokens</option>
+              <option value="16000">16,000 tokens</option>
+              <option value="32000">32,000 tokens</option>
+              <option value="64000">64,000 tokens</option>
+            </select>
+          </div>
+          <div class="model-select-group">
+            <!-- Balanced empty column -->
+          </div>
+        </div>
+
         <!-- AI Judge Configuration row -->
         <div class="config-row judge-config-row">
           <div class="model-select-group">
             <label for="judgeModel"><i class="fa-solid fa-gavel"></i> AI Judge Model</label>
             <select id="judgeModel">
               <optgroup label="Google Gemini">
-                <option value="google/gemini-3.1-pro" selected>Gemini 3.1 Pro</option>
-                <option value="google/gemini-3.5-flash">Gemini 3.5 Flash</option>
+                <option value="google/gemini-3.1-pro">Gemini 3.1 Pro</option>
+                <option value="google/gemini-3.5-flash" selected>Gemini 3.5 Flash</option>
                 <option value="google/gemini-2.1-pro">Gemini 2.1 Pro</option>
                 <option value="google/gemini-3.1-flash-lite">Gemini 3.1 Flash Lite</option>
                 <option value="google/gemma-4-31b-it">Gemma 4 31B</option>

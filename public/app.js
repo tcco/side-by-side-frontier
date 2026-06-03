@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const modelA = document.getElementById('modelA');
   const modelB = document.getElementById('modelB');
+  const maxTokens = document.getElementById('maxTokens');
   const generateBtn = document.getElementById('generateBtn');
   
   const comparisonWorkspace = document.getElementById('comparisonWorkspace');
@@ -550,7 +551,8 @@ document.addEventListener('DOMContentLoaded', () => {
           modelB: modelB.value,
           modelAName: nameA,
           modelBName: nameB,
-          forceRegenerate: forceRegenerate.checked
+          forceRegenerate: forceRegenerate.checked,
+          maxTokens: maxTokens.value
         })
       });
 
@@ -679,7 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
           outputA: activeSession.outputA,
           outputB: activeSession.outputB,
           judgeModel: judgeModel.value,
-          forceRegenerate: forceRegenerate.checked
+          forceRegenerate: forceRegenerate.checked,
+          maxTokens: maxTokens.value
         })
       });
 
