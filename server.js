@@ -686,6 +686,213 @@ Do not include any text after the JSON code block.`;
   }
 });
 
+// GET current aggregated summary
+app.get('/api/aggregate', async (req, res) => {
+  try {
+    const summaryPath = path.join(__dirname, 'summarized-thoughts', 'README.md');
+    let summary = '';
+    if (fs.existsSync(summaryPath)) {
+      summary = await fsPromises.readFile(summaryPath, 'utf-8');
+    } else {
+      summary = `# Summarized Thoughts & Model Comparisons\n\nNo aggregate summary available yet. Run the synthesis to compile results from the \`/outputs\` folder.\n`;
+    }
+    res.json({ summary });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST to update aggregate opinions with new evaluations
+app.post('/api/aggregate', async (req, res) => {
+  const keys = {
+    openai: req.headers['x-openai-key'],
+    anthropic: req.headers['x-anthropic-key'],
+    gemini: req.headers['x-gemini-key']
+  };
+
+  // We need at least one key to run the synthesis model
+  const hasKey = keys.gemini || keys.openai || keys.anthropic;
+  if (!hasKey) {
+    return res.status(400).json({ error: 'At least one API Key (Gemini, OpenAI, or Anthropic) must be provided in your Settings to run the synthesis.' });
+  }
+
+  const SUMMARIZED_THOUGHTS_DIR = path.join(__dirname, 'summarized-thoughts');
+  if (!fs.existsSync(SUMMARIZED_THOUGHTS_DIR)) {
+    await fsPromises.mkdir(SUMMARIZED_THOUGHTS_DIR, { recursive: true });
+  }
+
+  const summaryPath = path.join(SUMMARIZED_THOUGHTS_DIR, 'README.md');
+  const statePath = path.join(SUMMARIZED_THOUGHTS_DIR, 'aggregation-state.json');
+
+  try {
+    // 1. Load current summary
+    let currentSummary = '';
+    if (fs.existsSync(summaryPath)) {
+      currentSummary = await fsPromises.readFile(summaryPath, 'utf-8');
+    } else {
+      currentSummary = `# Summarized Thoughts & Model Comparisons\n\nNo aggregate summary available yet.\n`;
+    }
+
+    // 2. Load aggregation state
+    let state = { processedJudgments: {} };
+    if (fs.existsSync(statePath)) {
+      try {
+        state = JSON.parse(await fsPromises.readFile(statePath, 'utf-8'));
+      } catch (e) {
+        state = { processedJudgments: {} };
+      }
+    }
+
+    // 3. Scan outputs directory for judge reviews
+    const folders = await fsPromises.readdir(OUTPUTS_DIR, { withFileTypes: true });
+    const directories = folders.filter(f => f.isDirectory()).map(f => f.name);
+
+    const newJudgments = [];
+
+    for (const dir of directories) {
+      const challengeOutputDir = path.join(OUTPUTS_DIR, dir);
+      const files = await fsPromises.readdir(challengeOutputDir);
+
+      // Find all judge files
+      const judgeFiles = files.filter(f => f.startsWith('judge') && f.endsWith('.md'));
+
+      for (const judgeFile of judgeFiles) {
+        const filePath = path.join(challengeOutputDir, judgeFile);
+        const content = await fsPromises.readFile(filePath, 'utf-8');
+
+        // Use content length and file size as a simple hash/identifier
+        const fileKey = `${dir}/${judgeFile}`;
+        const stats = fs.statSync(filePath);
+        const contentHash = `${content.length}-${stats.mtimeMs}`;
+
+        const isNew = !state.processedJudgments[fileKey] || state.processedJudgments[fileKey].hash !== contentHash;
+
+        if (isNew) {
+          // Read challenge info if available to provide context to the LLM
+          let target = 'Unknown coding task';
+          let prompt = '';
+          const challengePath = path.join(CHALLENGES_DIR, dir);
+          if (fs.existsSync(challengePath)) {
+            const criteriaPath = path.join(challengePath, 'criteria.md');
+            if (fs.existsSync(criteriaPath)) {
+              target = await fsPromises.readFile(criteriaPath, 'utf-8');
+            }
+            const promptPath = path.join(challengePath, 'prompt.md');
+            if (fs.existsSync(promptPath)) {
+              prompt = await fsPromises.readFile(promptPath, 'utf-8');
+            }
+          }
+
+          newJudgments.push({
+            fileKey,
+            hash: contentHash,
+            challengeId: dir,
+            target,
+            prompt,
+            content
+          });
+        }
+      }
+    }
+
+    // If no new judgments, return the current summary directly!
+    if (newJudgments.length === 0) {
+      return res.json({
+        summary: currentSummary,
+        updated: false,
+        message: 'All comparison outputs are already aggregated. No new updates.'
+      });
+    }
+
+    // 4. Run LLM update synthesis
+    const systemPrompt = `You are a world-class principal software architect and AI evaluator. Your goal is to synthesize code evaluations from multiple LLMs across programming challenges to form an aggregate, high-fidelity opinion on each provider's top models.
+
+We are comparing models from different providers (OpenAI, Anthropic, Gemini) side-by-side on specific coding challenges.
+
+Your input consists of:
+1. The current aggregated summary file (written in Markdown).
+2. A list of NEW judge evaluations to incorporate.
+
+Your task is to merge the new data into the existing Markdown document:
+- Incorporate any new challenge evaluations into the "Tournament Tracking Log" table. Keep all pre-existing rows in the log.
+- Synthesize the new feedback (errors, code qualities, strengths, weaknesses, tendencies, and how models performed on specific challenge types) and weave it into the "Aggregate Opinions & Synthesis" section for each provider's top models (Claude, Gemini, GPT).
+- Refine the opinions as new evidence comes in, adjusting strengths/weaknesses and coding tendencies accordingly. Keep it objective, technical, and concrete.
+- Do NOT rewrite the entire document from scratch. Maintain the structure, title, sections, Mermaid flowcharts, and formatting.
+- Ensure the output is strictly valid Markdown. Do not wrap the Markdown block inside extra tags or write conversational text. Just output the final updated Markdown file content directly.`;
+
+    const newJudgmentsFormatted = newJudgments.map((j, index) => {
+      return `---
+[NEW EVALUATION #${index + 1}]
+File Key: ${j.fileKey}
+Challenge: ${j.challengeId}
+Challenge Target: ${j.target}
+Prompt: ${j.prompt}
+
+Judge Verdict Content:
+${j.content}
+`;
+    }).join('\n\n');
+
+    const promptContent = `Here is the current aggregated summary:
+\`\`\`markdown
+${currentSummary}
+\`\`\`
+
+Here are the new evaluations to aggregate:
+${newJudgmentsFormatted}
+
+Please output the fully updated Markdown file, incorporating all new evaluations and syntheses.`;
+
+    let updatedSummary = '';
+
+    // Choose model based on key availability
+    if (keys.gemini) {
+      updatedSummary = await callGemini('gemini-3.5-flash', `${systemPrompt}\n\n${promptContent}`, keys.gemini, '32000');
+    } else if (keys.openai) {
+      updatedSummary = await callOpenAI('gpt-4o', `${systemPrompt}\n\n${promptContent}`, keys.openai, '8000');
+    } else if (keys.anthropic) {
+      updatedSummary = await callAnthropic('claude-3-5-sonnet-20241022', `${systemPrompt}\n\n${promptContent}`, keys.anthropic, '8000');
+    }
+
+    // Clean up markdown block wraps if LLM returns them
+    if (updatedSummary.startsWith('```markdown')) {
+      updatedSummary = updatedSummary.slice(11);
+      if (updatedSummary.endsWith('```')) {
+        updatedSummary = updatedSummary.slice(0, -3);
+      }
+    } else if (updatedSummary.startsWith('```')) {
+      updatedSummary = updatedSummary.slice(3);
+      if (updatedSummary.endsWith('```')) {
+        updatedSummary = updatedSummary.slice(0, -3);
+      }
+    }
+    updatedSummary = updatedSummary.trim();
+
+    // 5. Write the updated summary back to README.md
+    await fsPromises.writeFile(summaryPath, updatedSummary, 'utf-8');
+
+    // 6. Update the processed judgments state
+    newJudgments.forEach(j => {
+      state.processedJudgments[j.fileKey] = {
+        processedAt: new Date().toISOString(),
+        hash: j.hash
+      };
+    });
+
+    await fsPromises.writeFile(statePath, JSON.stringify(state, null, 2), 'utf-8');
+
+    res.json({
+      summary: updatedSummary,
+      updated: true,
+      message: `Successfully aggregated ${newJudgments.length} new evaluation(s) and updated the synthesis.`
+    });
+
+  } catch (err) {
+    console.error('Error in aggregate endpoint:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Fallback to serving the main client index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

@@ -657,4 +657,58 @@ describe('CodeArena Frontend Tests', () => {
       expect(judgeShortExplanation.textContent).toBe('Therefore, Model A wins because of time complexity.');
     });
   });
+
+  describe('Scenario 9: Synthesis Overlay and Execution', () => {
+    it('should open synthesis overlay, load existing synthesis on click, and trigger post request to aggregate', async () => {
+      await flushPromises();
+
+      mockFetch.mockImplementation(async (url, options) => {
+        if (url === '/api/challenges') {
+          return getChallengesListResponse();
+        }
+        if (url === '/api/aggregate' && !options) {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              summary: '## Existing Summary\n- Model performances'
+            })
+          };
+        }
+        if (url === '/api/aggregate' && options && options.method === 'POST') {
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              summary: '## Updated Summary\n- Model performances updated',
+              message: 'Successfully aggregated 1 new evaluation'
+            })
+          };
+        }
+        return { ok: false, status: 404 };
+      });
+
+      // Keys are required in Settings to trigger post synthesis
+      window.localStorage.setItem('code_arena_openai_key', 'test-key');
+
+      const synthesisBtn = document.getElementById('synthesisBtn');
+      const synthesisOverlay = document.getElementById('synthesisOverlay');
+      const synthesisContent = document.getElementById('synthesisContent');
+
+      // Click button to open
+      synthesisBtn.dispatchEvent(new window.Event('click'));
+      await flushPromises();
+
+      // Check overlay visible and fetched existing content
+      expect(synthesisOverlay.classList.contains('hidden')).toBe(false);
+      expect(synthesisContent.innerHTML).toContain('Existing Summary');
+
+      // Run synthesis update
+      const runSynthesisBtn = document.getElementById('runSynthesisBtn');
+      runSynthesisBtn.dispatchEvent(new window.Event('click'));
+      await flushPromises();
+
+      // Check updated content loaded
+      expect(synthesisContent.innerHTML).toContain('Updated Summary');
+      expect(document.getElementById('synthesisStatus').textContent).toBe('Successfully aggregated 1 new evaluation');
+    });
+  });
 });

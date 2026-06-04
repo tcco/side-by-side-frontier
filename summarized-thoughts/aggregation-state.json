@@ -1,0 +1,76 @@
+{
+  "processedJudgments": {
+    "basic-fibonacci/judge_anthropic_claude-haiku-4-5-20251001_vs_google_gemini-3.5-flash_by_google_gemini-2.1-pro.md": {
+      "processedAt": "2026-06-04T21:32:18.976Z",
+      "hash": "3934-1780510235348.2126"
+    },
+    "basic-fibonacci/judge_anthropic_claude-haiku-4-5-20251001_vs_google_gemini-3.5-flash_by_google_gemini-3.1-flash-lite.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "2822-1780509600836.8057"
+    },
+    "basic-fibonacci/judge_anthropic_claude-haiku-4-5-20251001_vs_google_gemini-3.5-flash_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "3179-1780509387610.7207"
+    },
+    "basic-fibonacci/judge_anthropic_claude-haiku-4-5-20251001_vs_google_gemini-3.5-flash_by_google_gemma-4-31b-it.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "4402-1780436073303.6848"
+    },
+    "basic-fibonacci/judge_anthropic_claude-haiku-4-5-20251001_vs_google_gemma-4-31b-it_by_google_gemma-4-31b-it.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "1167-1780433393312.1729"
+    },
+    "basic-fibonacci/judge_anthropic_claude-haiku-4-5-20251001_vs_openai_gpt-4o_by_google_gemma-4-31b-it.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "3429-1780433631671.2705"
+    },
+    "basic-python-configuration-parser/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "2541-1780511274223.2593"
+    },
+    "basic-python-configuration-parser/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "2775-1780511585095.0916"
+    },
+    "intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "6558-1780608629330.2986"
+    },
+    "intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "5022-1780608104882.8716"
+    },
+    "intermediate-python-constant-time-moving/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "2708-1780511809073.1912"
+    },
+    "intermediate-python-constant-time-moving/judge_openai_gpt-5.5_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "2335-1780512024421.3088"
+    },
+    "intermediate-python-js-rules-claude/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "4211-1780514421033.6174"
+    },
+    "intermediate-python-js-rules-claude/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "4336-1780514741411.6719"
+    },
+    "intermediate-python-ordered-transaction/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "3105-1780512373203.9487"
+    },
+    "intermediate-python-ordered-transaction/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "2746-1780512951535.2432"
+    },
+    "intermediate-sql-date-partition-logic/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "3484-1780607268302.1765"
+    },
+    "intermediate-sql-date-partition-logic/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-04T21:32:18.977Z",
+      "hash": "4230-1780607541297.1284"
+    }
+  }
+}

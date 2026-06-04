@@ -1026,3 +1026,77 @@ input:checked + .slider:before {
   line-height: 1.55;
 }
 
+/* Synthesis Modal & Markdown styling */
+.modal-card-large {
+  max-width: 950px;
+  width: 90vw;
+  height: 85vh;
+}
+
+.synthesis-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.synthesis-status-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.synthesis-markdown {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: calc(85vh - 220px);
+  padding-right: 0.5rem;
+  margin-top: 1rem;
+}
+
+.synthesis-markdown h1,
+.synthesis-markdown h2,
+.synthesis-markdown h3 {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.4rem;
+  margin-top: 1.75rem;
+}
+
+.synthesis-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+.synthesis-markdown th,
+.synthesis-markdown td {
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.synthesis-markdown th {
+  background: rgba(255, 255, 255, 0.03);
+  font-weight: 600;
+}
+
+.synthesis-markdown tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.synthesis-markdown::-webkit-scrollbar {
+  width: 6px;
+}
+.synthesis-markdown::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+.synthesis-markdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+.synthesis-markdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+

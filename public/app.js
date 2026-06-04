@@ -66,6 +66,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const autoRunJudge = document.getElementById('autoRunJudge');
   const judgePlaceholder = document.getElementById('judgePlaceholder');
 
+  // Synthesis DOM Elements
+  const synthesisBtn = document.getElementById('synthesisBtn');
+  const closeSynthesisBtn = document.getElementById('closeSynthesisBtn');
+  const runSynthesisBtn = document.getElementById('runSynthesisBtn');
+  const synthesisOverlay = document.getElementById('synthesisOverlay');
+  const synthesisContent = document.getElementById('synthesisContent');
+  const synthesisLoading = document.getElementById('synthesisLoading');
+  const synthesisError = document.getElementById('synthesisError');
+  const synthesisStatus = document.getElementById('synthesisStatus');
+
   // Cache for loaded challenges
   let challengesCache = [];
   
@@ -418,6 +428,99 @@ document.addEventListener('DOMContentLoaded', () => {
   settingsOverlay.addEventListener('click', (e) => {
     if (e.target === settingsOverlay) {
       settingsOverlay.classList.add('hidden');
+    }
+  });
+
+  // Synthesis Modal Logic
+  synthesisBtn.addEventListener('click', async () => {
+    synthesisOverlay.classList.remove('hidden');
+    synthesisError.classList.add('hidden');
+    synthesisStatus.textContent = '';
+    
+    // Load current summary representation
+    try {
+      synthesisContent.innerHTML = '<em>Loading existing synthesis...</em>';
+      const response = await fetch('/api/aggregate');
+      if (response.ok) {
+        const data = await response.json();
+        synthesisContent.innerHTML = marked.parse(data.summary || '# No summary found.');
+        
+        // Highlight code blocks
+        synthesisContent.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+        });
+      } else {
+        synthesisContent.innerHTML = 'Failed to load existing synthesis.';
+      }
+    } catch (err) {
+      synthesisContent.innerHTML = `Error: ${err.message}`;
+    }
+  });
+
+  closeSynthesisBtn.addEventListener('click', () => {
+    synthesisOverlay.classList.add('hidden');
+  });
+
+  synthesisOverlay.addEventListener('click', (e) => {
+    if (e.target === synthesisOverlay) {
+      synthesisOverlay.classList.add('hidden');
+    }
+  });
+
+  // Execute synthesis run
+  runSynthesisBtn.addEventListener('click', async () => {
+    const keys = getApiKeys();
+    const missingKeys = !keys.openai && !keys.anthropic && !keys.gemini;
+    if (missingKeys) {
+      alert('Please configure at least one API Key in Settings to run the synthesis model.');
+      settingsOverlay.classList.remove('hidden');
+      return;
+    }
+
+    synthesisLoading.classList.remove('hidden');
+    synthesisContent.classList.add('hidden');
+    synthesisError.classList.add('hidden');
+    runSynthesisBtn.disabled = true;
+    synthesisStatus.textContent = '';
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-openai-key': keys.openai,
+      'x-anthropic-key': keys.anthropic,
+      'x-gemini-key': keys.gemini
+    };
+
+    try {
+      const response = await fetch('/api/aggregate', {
+        method: 'POST',
+        headers: headers
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || response.statusText);
+      }
+
+      const data = await response.json();
+      
+      synthesisLoading.classList.add('hidden');
+      synthesisContent.classList.remove('hidden');
+      runSynthesisBtn.disabled = false;
+
+      synthesisContent.innerHTML = marked.parse(data.summary);
+      synthesisStatus.textContent = data.message || 'Updated successfully.';
+      synthesisStatus.style.color = '#10b981';
+
+      // Highlight syntax inside content
+      synthesisContent.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+      });
+    } catch (err) {
+      synthesisLoading.classList.add('hidden');
+      synthesisContent.classList.remove('hidden');
+      runSynthesisBtn.disabled = false;
+      synthesisError.textContent = `Synthesis Error: ${err.message}`;
+      synthesisError.classList.remove('hidden');
     }
   });
 

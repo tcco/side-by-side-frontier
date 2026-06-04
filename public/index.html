@@ -24,6 +24,9 @@
         <h1>CodeArena <span>MVP</span></h1>
       </div>
       <div class="header-actions">
+        <button id="synthesisBtn" class="btn icon-btn" title="View Aggregated Synthesis">
+          <i class="fa-solid fa-chart-line"></i> Aggregate Insights
+        </button>
         <button id="settingsBtn" class="btn icon-btn" title="Configure API Keys">
           <i class="fa-solid fa-gear"></i> Settings
         </button>
@@ -327,6 +330,37 @@
       </div>
       <div class="modal-footer">
         <button id="saveSettingsBtn" class="btn primary-btn">Save API Keys</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Synthesis Drawer / Modal (Glassmorphic design) -->
+  <div id="synthesisOverlay" class="modal-overlay hidden">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-chart-line"></i> Aggregate Model Insights</h2>
+        <button id="closeSynthesisBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-hint">Aggregate all comparison runs saved in the <code>/outputs</code> folder to synthesize overall model performance, strengths, weaknesses, and provider-specific tendencies.</p>
+        
+        <div class="synthesis-controls">
+          <button id="runSynthesisBtn" class="btn primary-btn btn-glow">
+            <i class="fa-solid fa-arrows-rotate"></i> Run/Update Aggregation
+          </button>
+          <span id="synthesisStatus" class="synthesis-status-text"></span>
+        </div>
+
+        <div id="synthesisLoading" class="loading-state hidden">
+          <div class="spinner"></div>
+          <p id="synthesisLoadingText">Scanning outputs and generating aggregate synthesis...</p>
+        </div>
+
+        <div id="synthesisError" class="error-state hidden"></div>
+
+        <div id="synthesisContent" class="markdown-body synthesis-markdown">
+          <!-- Rendered synthesis README.md goes here -->
+        </div>
       </div>
     </div>
   </div>
