@@ -8,9 +8,12 @@ To consistently compare top-tier models, we use a tournament-style matchup:
 
 ```mermaid
 graph TD
-    A[Claude Pro Model] vs B[Gemini Pro Model]
-    A vs B -->|Winner| C[Winner]
-    C vs D[GPT Pro Model] -->|Overall Winner| E[Tournament Champion]
+    A[Claude Pro Model] --> R1{vs}
+    B[Gemini Pro Model] --> R1
+    R1 -->|Winner| C[Round 1 Winner]
+    C --> R2{vs}
+    D[GPT Pro Model] --> R2
+    R2 -->|Overall Winner| E[Tournament Champion]
 ```
 
 1. **Round 1 (Initial Pro Matchup)**: Compare two top-tier pro models (e.g., **Claude 3.7 Sonnet** vs. **Gemini 1.5 Pro**).
