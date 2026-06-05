@@ -71,6 +71,78 @@
     "intermediate-sql-date-partition-logic/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
       "processedAt": "2026-06-04T21:32:18.977Z",
       "hash": "4230-1780607541297.1284"
+    },
+    "advanced-python-algo-refactor-spatial-co/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "4151-1780632683075.637"
+    },
+    "advanced-python-algo-refactor-spatial-co/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "3927-1780632913359.3547"
+    },
+    "advanced-rust-go-concurrency-memory-mana/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "3952-1780630170575.5796"
+    },
+    "advanced-rust-go-concurrency-memory-mana/judge_openai_gpt-5.5_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "4269-1780630473903.2622"
+    },
+    "advanced-typescript-state-machine-evolut/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "4018-1780631410559.931"
+    },
+    "advanced-typescript-state-machine-evolut/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "3952-1780631781365.0283"
+    },
+    "intermediate-python-error-recovery/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "3130-1780628242711.4307"
+    },
+    "intermediate-python-error-recovery/judge_openai_gpt-5.5_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:18:32.790Z",
+      "hash": "3061-1780628974330.943"
+    },
+    "adv-c-custom-memory-allocator/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.323Z",
+      "hash": "4564-1780633624542.007"
+    },
+    "adv-c-custom-memory-allocator/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "4332-1780633951405.7812"
+    },
+    "adv-c-rust-thread-safe-ring-buffer/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "4641-1780633431840.0469"
+    },
+    "adv-c-rust-thread-safe-ring-buffer/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "4629-1780633706236.06"
+    },
+    "adv-go-hla-sys-design/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "3988-1780633833521.6467"
+    },
+    "adv-go-hla-sys-design/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "3706-1780634111550.014"
+    },
+    "adv-node-debug/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "3664-1780633740854.071"
+    },
+    "adv-node-debug/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "3832-1780633882874.1404"
+    },
+    "adv-python-cross-file-dep/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "3107-1780633617461.1047"
+    },
+    "adv-python-cross-file-dep/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md": {
+      "processedAt": "2026-06-05T04:37:04.324Z",
+      "hash": "4348-1780634003405.6501"
     }
   }
 }

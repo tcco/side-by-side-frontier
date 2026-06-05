@@ -1,0 +1,3 @@
+Design a distributed, dual-write synchronization component in Go that bridges a primary relational database (PostgreSQL) and a search index (Elasticsearch) without utilizing third-party Change Data Capture (CDC) tools like Debezium.
+
+When an entity is updated, the system must perform a local database transaction and write an update event to an outbox table within the same transaction. A background worker must poll the outbox table, deliver updates to Elasticsearch asynchronously, and handle delivery failures using exponential backoff with jitter. Provide the explicit Go implementation for the transactional outbox worker loop, demonstrating how you prevent duplicate event processing using strict idempotency keys and how you avoid overlapping worker execution loops.

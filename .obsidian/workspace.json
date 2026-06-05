@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "outputs/intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+                "file": "outputs/adv-go-hla-sys-design/openai_gpt-5.5.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash"
+              "title": "openai_gpt-5.5"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "outputs/intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+                "file": "outputs/adv-go-hla-sys-design/openai_gpt-5.5.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash"
+              "title": "Backlinks for openai_gpt-5.5"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "outputs/intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+                "file": "outputs/adv-go-hla-sys-design/openai_gpt-5.5.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash"
+              "title": "Outgoing links from openai_gpt-5.5"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "outputs/intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+                "file": "outputs/adv-go-hla-sys-design/openai_gpt-5.5.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash"
+              "title": "Outline of openai_gpt-5.5"
             }
           }
         ]
@@ -183,44 +183,44 @@
       "bases:Create new base": false
     }
   },
-  "active": "0dc4559feacde0da",
+  "active": "9ec173d59b0278d8",
   "lastOpenFiles": [
-    "outputs/intermediate-python-error-recovery/judge_openai_gpt-5.5_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-python-error-recovery/openai_gpt-5.5.py",
-    "outputs/intermediate-python-error-recovery/openai_gpt-5.5.md",
-    "outputs/intermediate-python-error-recovery/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-python-error-recovery/meta.json",
-    "outputs/intermediate-python-error-recovery/google_gemini-3.1-pro.py",
-    "outputs/intermediate-python-error-recovery/google_gemini-3.1-pro.md",
-    "outputs/intermediate-python-error-recovery/anthropic_claude-opus-4-7.py",
-    "outputs/intermediate-python-error-recovery/anthropic_claude-opus-4-7.md",
-    "outputs/intermediate-python-error-recovery",
-    "challenges/intermediate-python-error-recovery/prompt.md",
-    "challenges/intermediate-python-error-recovery/code.py",
-    "challenges/intermediate-python-error-recovery",
-    "summarized-thoughts/aggregation-state.json",
-    "summarized-thoughts/README.md",
-    "outputs/intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-iac-node-backend-security/openai_gpt-5.5.js",
-    "outputs/intermediate-iac-node-backend-security/openai_gpt-5.5.md",
+    "outputs/adv-go-hla-sys-design/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
     "outputs/intermediate-iac-node-backend-security/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-iac-node-backend-security/meta.json",
-    "outputs/intermediate-iac-node-backend-security/google_gemini-3.1-pro.md",
-    "outputs/intermediate-iac-node-backend-security/anthropic_claude-opus-4-7.md",
-    "challenges/intermediate-iac-node-backend-security/prompt.md",
-    "challenges/intermediate-python-js-rules-claude/prompt.md",
-    "outputs/intermediate-sql-date-partition-logic/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-sql-date-partition-logic/openai_gpt-5.5.md",
-    "outputs/intermediate-sql-date-partition-logic/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-sql-date-partition-logic/google_gemini-3.1-pro.md",
-    "outputs/intermediate-sql-date-partition-logic/anthropic_claude-opus-4-7.md",
-    "challenges/intermediate-sql-date-partition-logic/prompt.md",
-    "outputs/intermediate-python-js-rules-claude/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-python-js-rules-claude/openai_gpt-5.5.md",
-    "outputs/intermediate-python-js-rules-claude/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
-    "outputs/intermediate-python-js-rules-claude/google_gemini-3.1-pro.md",
-    "outputs/intermediate-python-js-rules-claude/anthropic_claude-opus-4-7.md",
-    "outputs/intermediate-python-ordered-transaction/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+    "outputs/adv-go-hla-sys-design/openai_gpt-5.5.js",
+    "outputs/adv-go-hla-sys-design/openai_gpt-5.5.md",
+    "outputs/adv-c-custom-memory-allocator/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
+    "outputs/adv-c-custom-memory-allocator/openai_gpt-5.5.js",
+    "outputs/adv-c-custom-memory-allocator/openai_gpt-5.5.md",
+    "outputs/adv-node-debug/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
+    "outputs/adv-node-debug/openai_gpt-5.5.js",
+    "outputs/adv-node-debug/openai_gpt-5.5.md",
+    "outputs/adv-python-cross-file-dep/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
+    "outputs/adv-python-cross-file-dep/openai_gpt-5.5.js",
+    "outputs/adv-python-cross-file-dep/openai_gpt-5.5.md",
+    "outputs/adv-node-debug/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+    "outputs/adv-node-debug/meta.json",
+    "outputs/adv-node-debug/google_gemini-3.1-pro.md",
+    "outputs/adv-node-debug/google_gemini-3.1-pro.js",
+    "outputs/adv-node-debug/anthropic_claude-opus-4-7.js",
+    "outputs/adv-node-debug/anthropic_claude-opus-4-7.md",
+    "outputs/adv-node-debug",
+    "outputs/adv-c-rust-thread-safe-ring-buffer/judge_anthropic_claude-opus-4-7_vs_openai_gpt-5.5_by_google_gemini-3.5-flash.md",
+    "outputs/adv-go-hla-sys-design/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+    "outputs/adv-c-rust-thread-safe-ring-buffer/openai_gpt-5.5.js",
+    "outputs/adv-c-rust-thread-safe-ring-buffer/openai_gpt-5.5.md",
+    "outputs/adv-go-hla-sys-design/meta.json",
+    "outputs/adv-go-hla-sys-design/google_gemini-3.1-pro.md",
+    "outputs/adv-go-hla-sys-design/anthropic_claude-opus-4-7.md",
+    "challenges/adv-node-debug/prompt.md",
+    "outputs/adv-c-custom-memory-allocator/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+    "outputs/adv-python-cross-file-dep/judge_anthropic_claude-opus-4-7_vs_google_gemini-3.1-pro_by_google_gemini-3.5-flash.md",
+    "challenges/adv-go-hla-sys-design/prompt.md",
+    "outputs/adv-python-cross-file-dep/google_gemini-3.1-pro.md",
+    "outputs/adv-python-cross-file-dep/anthropic_claude-opus-4-7.md",
+    "challenges/adv-python-cross-file-dep/prompt.md",
+    "outputs/adv-c-custom-memory-allocator/google_gemini-3.1-pro.md",
+    "outputs/adv-c-custom-memory-allocator/anthropic_claude-opus-4-7.md",
     "screenshots/3_evaluation.png",
     "screenshots/2_outputs.png",
     "screenshots/1_configuration.png"
